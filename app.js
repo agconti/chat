@@ -1,44 +1,85 @@
-var app = require('express')();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+var express = require('express');
+var app = express();
+var server = require('http').Server(app);
+var io = require('socket.io')(server);
 var redis = require('redis');
 var client = redis.createClient();
+
+// log server port to console
+server.listen(3000, function(){
+  console.log('listening on *:3000');
+});
+
+// set static file routing
+app.use(express.static(__dirname));
+
+// app routing
+app.get('/', function(req, res){
+  res.sendfile('index.html');
+});
+
 
 // log redis errors to console for easy debugging
 client.on("error", function (err) {
     console.log("Error " + err);
 });
 
-// client.set("string key", "string val", redis.print);
-// client.hset("hash key", "hashtest 1", "some value", redis.print);
-// client.hset(["hash key", "hashtest 2", "some other value"], redis.print);
-// client.hkeys("hash key", function (err, replies) {
-//     console.log(replies.length + " replies:");
-//     replies.forEach(function (reply, i) {
-//         console.log("    " + i + ": " + reply);
-//     });
-//     client.quit();
-// });
+// usernames which are currently connected to the chat
+var usernames = {};
+var numUsers = 0;
 
-app.get('/', function(req, res){
-  res.sendfile('index.html');
-});
 
 io.on('connection', function(client){
+  var addedUser = false;
 
-  // get user nick name
+  // reply with message and username.
+  client.on('new message', function(msg){
+    client.broadcast.emit("new message", {
+      username: client.username,
+      message: msg
+    });
+  });
+
+   client.on('add user', function (username) {
+    // we store the username in the socket session for this client
+    client.username = username;
+    // add the client's username to the global list
+    usernames[username] = username;
+    ++numUsers;
+    addedUser = true;
+    client.emit('login', {
+      numUsers: numUsers
+    });
+    // echo globally (all clients) that a person has connected
+    client.broadcast.emit('user joined', {
+      username: client.username,
+      numUsers: numUsers
+    });
+  });
+
+  // get user username
   client.on('join', function(name) {
-    client.nickname = name;
+    client.username = name;
     client.broadcast.emit("chat", name + " joined the chat");
+    console.log(client.name + " joined!");
   });
 
-  // reply with message and nickname.
-  client.on('chat message', function(msg){
-    client.broadcast.emit("chat message", client.name + ": " + msg);
+  // when the user disconnects.. perform this
+  client.on('disconnect', function () {
+    // remove the username from global usernames list
+    if (addedUser) {
+      delete usernames[client.username];
+      --numUsers;
+
+      // echo globally that this client has left
+      client.broadcast.emit('user left', {
+        username: client.username,
+        numUsers: numUsers
+      });
+    }
   });
+
 });
 
-// log server to console
-http.listen(3000, function(){
-  console.log('listening on *:3000');
-});
+
+
