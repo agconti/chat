@@ -5,17 +5,23 @@ var io = require('socket.io')(server);
 var redis = require('redis');
 var client = redis.createClient();
 
-// log server port to console
-server.listen(3000, function(){
-  console.log('listening on *:3000');
-});
+// Configure app
 
 // set static file routing
 app.use(express.static(__dirname));
 
+// set port to default to env settings for heroku
+// or localhost settings.
+app.set('port', (process.env.PORT || 3000));
+
 // app routing
 app.get('/', function(req, res){
   res.sendfile('index.html');
+});
+
+// log server port to console
+server.listen(app.get('port'), function(){
+  console.log('listening on ' + app.get('port'));
 });
 
 
