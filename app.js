@@ -35,46 +35,53 @@ var usernames = {};
 var numUsers = 0;
 
 
-io.on('connection', function(client){
+io.on('connection', function(socket){
   var addedUser = false;
 
   // reply with message and username.
-  client.on('new message', function(msg){
-    client.broadcast.emit("new message", {
-      username: client.username,
+  socket.on('new message', function(msg){
+    socket.broadcast.emit("new message", {
+      username: socket.username,
       message: msg
     });
   });
 
-   client.on('add user', function (username) {
+   socket.on('add user', function (username) {
     // we store the username in the socket session for this client
-    client.username = username;
+    socket.username = username;
     // add the client's username to the global list
     usernames[username] = username;
     ++numUsers;
     addedUser = true;
-    client.emit('login', {
+    socket.emit('login', {
       numUsers: numUsers
     });
     // echo globally (all clients) that a person has connected
-    client.broadcast.emit('user joined', {
-      username: client.username,
+    socket.broadcast.emit('user joined', {
+      username: socket.username,
       numUsers: numUsers
     });
   });
 
-  // get user username
-  client.on('join', function(name) {
-    client.username = name;
-    client.broadcast.emit("chat", name + " joined the chat");
-    console.log(client.name + " joined!");
+  // when the client emits 'typing', we broadcast it to others
+  socket.on('typing', function () {
+    socket.broadcast.emit('typing', {
+      username: socket.username
+    });
+  });
+
+  // when the socket emits 'stop typing', we broadcast it to others
+  socket.on('stop typing', function () {
+    socket.broadcast.emit('stop typing', {
+      username: socket.username
+    });
   });
 
   // when the user disconnects.. perform this
-  client.on('disconnect', function () {
+  socket.on('disconnect', function () {
     // remove the username from global usernames list
     if (addedUser) {
-      delete usernames[client.username];
+      delete usernames[socket.username];
       --numUsers;
 
       // echo globally that this client has left
