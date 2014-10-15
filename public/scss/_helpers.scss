@@ -1,0 +1,17 @@
+/* ==========================================================================
+   Helpers Styles
+   ========================================================================== */
+.group {
+    margin: 0 auto;
+    max-width: 1200px;
+    width: 93.75%;
+}
+.clearfix:before,
+.clearfix:after {
+    content: " ";
+    display: table;
+}
+
+.clearfix:after {
+    clear: both;
+}
