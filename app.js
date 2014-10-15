@@ -8,7 +8,7 @@ var client = redis.createClient();
 // Configure app
 
 // set static file routing
-app.use(express.static(__dirname));
+app.use(express.static(__dirname + '/public'));
 
 // set port to default to env settings for heroku
 // or localhost settings.
