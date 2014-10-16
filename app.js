@@ -39,7 +39,7 @@ io.on('connection', function(socket){
 
   // reply with message and username.
   socket.on('newMessage', function(msg){
-    socket.broadcast.emit("new message", {
+    socket.broadcast.emit("newMessage", {
       username: socket.username,
       message: msg
     });
