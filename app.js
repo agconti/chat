@@ -2,8 +2,7 @@ var express = require('express');
 var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
-var redis = require('redis');
-var client = redis.createClient();
+var r = require('redis').createClient();
 
 // Configure app
 
@@ -26,7 +25,7 @@ server.listen(app.get('port'), function(){
 
 
 // log redis errors to console for easy debugging
-client.on("error", function (err) {
+r.on("error", function (err) {
     console.log("Error " + err);
 });
 
@@ -85,8 +84,8 @@ io.on('connection', function(socket){
       --numUsers;
 
       // echo globally that this client has left
-      client.broadcast.emit('user left', {
-        username: client.username,
+      socket.broadcast.emit('user left', {
+        username: socket.username,
         numUsers: numUsers
       });
     }
