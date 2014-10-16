@@ -56,7 +56,7 @@ io.on('connection', function(socket){
       numUsers: numUsers
     });
     // echo globally (all clients) that a person has connected
-    socket.broadcast.emit('user joined', {
+    socket.broadcast.emit('userJoined', {
       username: socket.username,
       numUsers: numUsers
     });
@@ -71,7 +71,7 @@ io.on('connection', function(socket){
 
   // when the socket emits 'stop typing', we broadcast it to others
   socket.on('stopTyping', function () {
-    socket.broadcast.emit('stop typing', {
+    socket.broadcast.emit('stopTyping', {
       username: socket.username
     });
   });
@@ -84,7 +84,7 @@ io.on('connection', function(socket){
       --numUsers;
 
       // echo globally that this client has left
-      socket.broadcast.emit('user left', {
+      socket.broadcast.emit('userLeft', {
         username: socket.username,
         numUsers: numUsers
       });
