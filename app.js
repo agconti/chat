@@ -38,14 +38,14 @@ io.on('connection', function(socket){
   var addedUser = false;
 
   // reply with message and username.
-  socket.on('new message', function(msg){
+  socket.on('newMessage', function(msg){
     socket.broadcast.emit("new message", {
       username: socket.username,
       message: msg
     });
   });
 
-   socket.on('add user', function (username) {
+   socket.on('addUser', function (username) {
     // we store the username in the socket session for this client
     socket.username = username;
     // add the client's username to the global list
@@ -70,7 +70,7 @@ io.on('connection', function(socket){
   });
 
   // when the socket emits 'stop typing', we broadcast it to others
-  socket.on('stop typing', function () {
+  socket.on('stopTyping', function () {
     socket.broadcast.emit('stop typing', {
       username: socket.username
     });
