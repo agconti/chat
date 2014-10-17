@@ -2,8 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Pearl Chat</title>
+<<<<<<< Updated upstream
+  <title>Socket.IO Chat Example</title>
   <link rel="stylesheet" href="css/main.css">
+=======
+  <title>Pearl Chat</title>
+  <link rel="stylesheet" href="style.css">
+>>>>>>> Stashed changes
 </head>
 <body>
   <ul class="pages">

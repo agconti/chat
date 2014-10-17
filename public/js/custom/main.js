@@ -236,6 +236,14 @@ $(function() {
     addParticipantsMessage(data);
   });
 
+  // load in existing messages
+  socket.on('initialize messages', function (data) {
+    var i = 0,
+        messageLength = data.length;
+    for(i=0; i < messageLength; i++){
+      addChatMessage(data[i]);
+    }
+  });
   // Whenever the server emits 'new message', update the chat body
   socket.on('new message', function (data) {
     addChatMessage(data);

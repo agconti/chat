@@ -36,9 +36,8 @@ r.on("error", function (err) {
 // intialize redis
 var roomName = 'room:chat1',
     hashStructure = {
-      'active_users': '[{"username": "John_Johnson"}]',
-      'messages': '[{"username": "John_Johnson", "message":"Hi Im John_Johnson."}]',
-      'numUsers': '1'
+      'active_users': '[]',
+      'messages': '[]'
     };
 r.hmset(roomName, hashStructure);
 
@@ -56,39 +55,49 @@ io.on('connection', function(socket){
 
   // Get all messages and send them to client
   r.hget(roomName, 'messages', function(err, resp){
-    debugger;
     var messages = JSON.parse(resp);
-    console.log(resp);
-    socket.emit('intializeMessages', messages);
+    socket.emit('intialize messages', messages);
   });
 
   // reply with message and username.
+<<<<<<< Updated upstream
   socket.on('newMessage', function(msg){
-
-    // update lastest messages.
+    socket.broadcast.emit("newMessage", {
+=======
+  socket.on('new message', function(msg){
     var messages;
     r.hget(roomName, 'messages', function(err, resp){
-      debugger;
-
       messages = JSON.parse(resp);
-      console.log(messages);
       messages.unshift(msg);
       // limts stored messages to last 50
-      console.log(messages);
       messages.length(50);
-
-      // needs to be converted to new json format.
       r.hset(roomName, 'messages', messages);
     });
 
-    socket.broadcast.emit("newMessage", {
+    socket.broadcast.emit("new message", {
+>>>>>>> Stashed changes
       username: socket.username,
       message: msg
     });
-
   });
 
+<<<<<<< Updated upstream
    socket.on('addUser', function (username) {
+    // we store the username in the socket session for this client
+    socket.username = username;
+    // add the client's username to the global list
+    usernames[username] = username;
+    ++numUsers;
+    addedUser = true;
+    socket.emit('login', {
+      numUsers: numUsers
+    });
+    // echo globally (all clients) that a person has connected
+    socket.broadcast.emit('userJoined', {
+      username: socket.username,
+      numUsers: numUsers
+=======
+  socket.on('add user', function (username) {
     // we store the username in the socket session for this client
     socket.username = username;
 
@@ -98,7 +107,7 @@ io.on('connection', function(socket){
       console.log("resp " + resp);
       var active_users = JSON.parse(resp);
       // add the client's username to the room's active usernames
-      var numUsers = active_users.push(username) || 1;
+      var numUsers = active_users.push(username);
       r.hset(roomName, 'active_users', active_users, redisLog); 
       
       // ++numUsers;
@@ -108,10 +117,11 @@ io.on('connection', function(socket){
         numUsers: numUsers
       });
       // echo globally (all clients) that a person has connected
-      socket.broadcast.emit('userJoined', {
+      socket.broadcast.emit('user joined', {
         username: socket.username,
         numUsers: numUsers
       });
+>>>>>>> Stashed changes
     });
   });
 
@@ -137,7 +147,11 @@ io.on('connection', function(socket){
     //   --numUsers;
 
       // echo globally that this client has left
+<<<<<<< Updated upstream
       socket.broadcast.emit('userLeft', {
+=======
+      socket.broadcast.emit('user left', {
+>>>>>>> Stashed changes
         username: socket.username,
         numUsers: numUsers
       });
